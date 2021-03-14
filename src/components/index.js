@@ -1,0 +1,1 @@
+export {default as Sudoku} from './index.jsx';

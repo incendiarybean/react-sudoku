@@ -1,38 +1,144 @@
-.App {
-  text-align: center;
+@tailwind base;
+
+@tailwind components;
+
+@tailwind utilities;
+
+@media print {
+    * { -webkit-print-color-adjust:exact }
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+html, body, #root, .App {
+    height: 100%;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.loader {
+	border-top-color: #3498db;
+	-webkit-animation: spinner 1.5s linear infinite;
+	animation: spinner 1.5s linear infinite;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+@-webkit-keyframes spinner {
+	0% { -webkit-transform: rotate(0deg); }
+	100% { -webkit-transform: rotate(360deg); }
 }
 
-.App-link {
-  color: #61dafb;
+@keyframes spinner {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.toggle-checkbox:checked {
+    right: 0;
+    border-color: #68D391;
+}
+.toggle-checkbox:checked + .toggle-label {
+    background-color: #68D391;
+}
+
+.theme-light{
+    --bg-preset-primary: white;
+    --bg-preset-secondary: #edf2f7;
+    --bg-preset-hover: #F7FAFC;
+    --bg-preset-title:#1F2937;
+    --bg-preset-text:black;
+    --bg-preset-paragraph:#6B7280;
+    --bg-preset-field:#EDF2F7;
+    --bg-preset-other:#F7FAFC;
+    --bg-preset-hint:#E5E7EB;
+    --bg-accent: #8B5CF6;
+    --bg-accent-light: #EDE9FE;
+}
+
+.theme-dark{
+    --bg-preset-primary: #2D3748;
+    --bg-preset-secondary: #4A5568;
+    --bg-preset-hover: #4A5568;
+    --bg-preset-title:#EDF2F7;
+    --bg-preset-text:white;
+    --bg-preset-paragraph:#E2E8F0;
+    --bg-preset-field:#4A5568;
+    --bg-preset-other: #1A202C;
+    --bg-preset-hint: #4B5563;
+    --bg-accent: #60A5FA;
+    --bg-accent-light: #DBEAFE;
+}
+
+.accent-purple{
+    --bg-preset-accent: #9F7AEA;
+}
+
+.accent-blue{
+    --bg-preset-accent: #63B3ED;
+}
+
+.accent-green{
+    --bg-preset-accent: #68D391;
+}
+
+.accent-yellow{
+    --bg-preset-accent: #F6E05E;
+}
+
+.accent-indigo{
+    --bg-preset-accent: #7F9CF5;
+}
+
+.accent-orange{
+    --bg-preset-accent:#F6AD55;
+}
+
+.accent-teal{
+    --bg-preset-accent:#4FD1C5;
+}
+
+.accent-pink{
+    --bg-preset-accent:#F687B3;
+}
+
+.accent-red{
+    --bg-preset-accent:#FC8181;
+}
+
+body {
+	font-family: 'Roboto', sans-serif;
+}
+::-webkit-scrollbar {
+	width: 6px;
+	height:6px;
+	padding:5px;
+	background:var(--bg-preset-secondary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background:slategray;
+	cursor: pointer;
+}
+::-webkit-scrollbar-thumb:focus {
+	background:slategray;
+	cursor: grabbing;
+}
+::-webkit-scrollbar-track {
+	border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--bg-preset-accent);
+	border-radius: 2px;
+}
+
+.colorPicker{
+    position:absolute;
+    display:flex;
+    right:0;
+    margin-top:-35px;
+}
+.colorPicker > div:hover{
+    cursor:pointer;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
