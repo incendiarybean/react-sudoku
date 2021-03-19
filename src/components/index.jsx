@@ -7,6 +7,7 @@ function Component(props){
     const [Reload, setReload] = useState(false);
     const [Hints, setHints] = useState(false);
 
+    // Creates array
     const generateSudoku = () => {
         setTries(0);
         while (true) {
@@ -15,24 +16,45 @@ function Component(props){
                 const rows = Array.from(Array(9).keys()).map(() => new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]));
                 const columns = Array.from(Array(9).keys()).map(() => new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]));
                 const squares = Array.from(Array(9).keys()).map(() => new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]));
-                Array.from(Array(9).keys()).forEach((i) => {
-                    Array.from(Array(9).keys()).forEach((j) => {
-                        const row = rows[i];
-                        const column = columns[j];
-                        const square = squares[((Math.floor(i / 3)) * 3) + Math.floor(j / 3)];
-                        const choices = [...row].filter(x => column.has(x)).filter(x => square.has(x));
-                        const choice = choices[Math.floor(Math.random() * choices.length)];
-                        if (!choice) {
+                Array.from(Array(9).keys()).forEach((rowIndex) => {
+                    Array.from(Array(9).keys()).forEach((colIndex) => {
+
+                        const row = rows[rowIndex];
+                        const column = columns[colIndex];
+
+                        // Create square
+                        const square = squares[
+                            (
+                                (Math.floor(rowIndex / 3))* 3
+                            ) + Math.floor(colIndex / 3)
+                        ];
+
+                        // Check if index allowed in row/col/square
+                        const options = [...row].filter(
+                            x => column.has(x)
+                        ).filter(
+                            x => square.has(x)
+                        );
+
+                        // Get available options
+                        const option = options[Math.floor(Math.random() * options.length)];
+
+                        // If not valid, reloop
+                        if (!option) {
                             throw new Error("invalid");
                         }
-                        puzzle[i][j] = choice;
-                        column.delete(choice);
-                        row.delete(choice);
-                        square.delete(choice);
+
+                        // Set tile
+                        puzzle[rowIndex][colIndex] = option;
+                        column.delete(option);
+                        row.delete(option);
+                        square.delete(option);
                     });
                 });
+
                 setSolution(JSON.parse(JSON.stringify(puzzle)));
                 setSudoku(JSON.parse(JSON.stringify(puzzle)));
+
                 return puzzle;
             } catch (e) {
                 continue;
@@ -40,6 +62,7 @@ function Component(props){
         }
     };
 
+    // Removes random tiles from array
     const randomizeSudoku = (toRemove, arr) => {
         setSudoku(
             arr.map((row) => {
@@ -64,10 +87,12 @@ function Component(props){
         );
     }
 
+    // Checks for tile borders in 3*3
     const isThree = (index) => {
         return (index % 3 === 0 && index !== 0);
     };
 
+    // Load the game, difficulty
     const generate = (e) => {
 
         setReload(true);
@@ -101,12 +126,15 @@ function Component(props){
         randomizeSudoku(toRemove, sudoku);
     }
 
+    // Checks finalised puzzle for correct, incorrect tiles
     const finish = () => {
         setTries(Tries + 1);
         const equals = (a, b) => JSON.stringify(a) === JSON.stringify(b);
         if(equals(Solution, Sudoku)) {
             setSolution(Solution => []);
             setSudoku(Sudoku => []);
+            setHints(false);
+            setReload(false);
             let score = window.localStorage.getItem('score');
             console.log(score);
             window.localStorage.setItem('score', score ++);
@@ -121,14 +149,18 @@ function Component(props){
                     setTries(0);
                     setSolution(Solution => []);
                     setSudoku(Sudoku => []);
+                    setHints(false);
+                    setReload(false);
                     return props.error('You hit the max attempts, better luck next time!', 'bottom-left');
             }
         }
     };
 
     const updateArray = (row, col, value, id) => {
+        // Check for valid number 1-9 or empty
         let regex = /^([1-9]|^$)$/;
 
+        // If it doesn't match
         if(!value.match(regex)) {
             if(Hints){
                 document.getElementById(id).classList.add("bg-red-400");
@@ -137,14 +169,17 @@ function Component(props){
             return props.error("Numbers must be 1-9");
         }
 
+        // If it's empty
         if(value === ""){
             document.getElementById(id).classList.remove("bg-green-400", "bg-red-400");
             document.getElementById(id).classList.add("bg-secondary");
             return false;
         }
 
+        // Set value in array
         Sudoku[row][col] = parseInt(value);
 
+        // If hints enabled, show right or wrong
         if(Hints){
             if(Sudoku[row][col] === Solution[row][col]) {
                 document.getElementById(id).classList.add("bg-green-400");
@@ -154,16 +189,20 @@ function Component(props){
                 document.getElementById(id).classList.remove("bg-secondary");
             }
         }
-
     };
 
+    // Resets board and play state
     const reset = (e) => {
-        e.preventDefault();
+        if(e.type === "submit"){
+            e.preventDefault();
+        }
         setSolution(Solution => []);
         setSudoku(Sudoku => []);
         setReload(false);
+        setHints(false);
     };
 
+    // When hints enabled, show right & wrong
     const hint = () => {
         setHints(Hints ? false : true);
         if(Hints){
@@ -194,21 +233,21 @@ function Component(props){
     };
 
     return (
-        <div className="flex flex-col items-center bg-secondary h-full">
-            <form id="difficulty" onSubmit={(Reload) ? reset : generate } className="w-1/2 text-center bg-primary p-3 py-5 shadow-lg mt-10">
+        <div className="text-default flex flex-col items-center bg-secondary h-full">
+            <form id="difficulty" onSubmit={(Reload) ? reset : generate } className="rounded-md w-1/2 text-center bg-primary p-3 py-5 shadow-lg mt-10">
                 <h1 className="uppercase font-bold text-default">Sudoku Generator</h1>
                 <p>Select your difficulty and click begin.</p>
                 <div className="flex flex-col lg:flex-row justify-around p-4 w-full">
                     <label className="inline-flex items-center cursor-pointer">
-                        <input onChange={reset} required type="radio" value="easy" name="difficulty" className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"/>
+                        <input onChange={reset} required type="radio" value="easy" name="difficulty" className="bg-other rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"/>
                         <span className="ml-2">Easy</span>
                     </label>
                     <label className="inline-flex items-center cursor-pointer">
-                        <input onChange={reset}  required type="radio" value="medium" name="difficulty" className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"/>
+                        <input onChange={reset}  required type="radio" value="medium" name="difficulty" className="bg-other rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"/>
                         <span className="ml-2">Medium</span>
                     </label>
                     <label className="inline-flex items-center cursor-pointer">
-                        <input onChange={reset}  required type="radio" value="hard" name="difficulty" className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"/>
+                        <input onChange={reset}  required type="radio" value="hard" name="difficulty" className="bg-other rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"/>
                         <span className="ml-2">Hard</span>
                     </label>
                 </div>
@@ -218,10 +257,6 @@ function Component(props){
                 <div className="mt-4 p-4 bg-primary grid grid-rows-9 shadow-lg rounded-md">
                     <div className="flex justify-around">
                         <p className="mx-1 text-center mb-2 bg-gray-900 text-white w-1/2 rounded-full p-2 shadow-md">Current Attempts: {Tries}</p>
-                        <label htmlFor="hints" className="select-none cursor-pointer flex justify-center items-center mx-1 text-center mb-2 bg-gray-900 text-white w-1/2 rounded-full p-2 shadow-md">
-                            <input type="checkbox" onChange={hint} name="hints" id="hints" />
-                            <span className="ml-2">Enable hints?</span>
-                        </label>
                     </div>
                     {
                         Sudoku.map((item, rowIndex) => {
@@ -242,6 +277,10 @@ function Component(props){
                         })
                     }
                     <button onClick={finish} className="my-2 transition duration-300 ease-in-out bg-gray-900 text-white w-full rounded-md p-2 hover:bg-green-600 shadow-md">Submit!</button>
+                    <label htmlFor="hints" className="ml-4 flex p-1 items-center cursor-pointer">
+                        <input type="checkbox" className="bg-other" onChange={hint} name="hints" id="hints" />
+                        <span className="ml-2">Enable hints?</span>
+                    </label>
                 </div>
                 :
                 <div></div>
